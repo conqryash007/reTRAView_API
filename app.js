@@ -6,6 +6,7 @@ const placesRoute = require("./routes/places-routes");
 const userRoute = require("./routes/users-routes");
 
 app.use(express.urlencoded({ extended: true }));
+
 app.use(express.json());
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

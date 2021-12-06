@@ -76,7 +76,8 @@ exports.createPlace = async (req, res, next) => {
     location: coordinate,
     address,
     creator,
-    image: "https://en.wikipedia.org/wiki/Colosseum#/media/File:Roma06(js).jpg",
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/d/d1/Roma06%28js%29.jpg",
   });
 
   try {
