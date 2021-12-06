@@ -5,15 +5,14 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon mongodb.js"
+    "start": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.17.1",
     "express-validator": "^6.13.0",
-    "mongoose": "^6.0.13",
-    "mongoose-unique-validator": "^3.0.0"
+    "mongoose": "^6.0.13"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

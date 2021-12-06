@@ -63,5 +63,8 @@ exports.logIn = async (req, res, next) => {
   if (!currUser || currUser.password !== password) {
     return next(new httpError("Invalid credentials. Could not log in."));
   }
-  res.json({ message: "Logged In" });
+  res.json({
+    message: "Logged In",
+    user: currUser.toObject({ getters: true }),
+  });
 };
