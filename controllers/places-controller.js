@@ -2,7 +2,7 @@ const httpError = require("./../models/http-error");
 const { validationResult } = require("express-validator");
 const Place = require("./../models/place");
 const User = require("./../models/user");
-
+const fs = require("fs");
 const mongoose = require("mongoose");
 
 // function to get places by id
@@ -76,8 +76,7 @@ exports.createPlace = async (req, res, next) => {
     location: coordinate,
     address,
     creator,
-    image:
-      "https://upload.wikimedia.org/wikipedia/commons/d/d1/Roma06%28js%29.jpg",
+    image: req.file.path,
   });
 
   try {
@@ -139,6 +138,8 @@ exports.deletePlaceById = async (req, res, next) => {
     return next(new httpError("Could not find the place !", 404));
   }
 
+  const pth = place.image;
+
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -151,6 +152,10 @@ exports.deletePlaceById = async (req, res, next) => {
       new httpError("Something went wrong!, Couldn't update place", 500)
     );
   }
+
+  fs.unlink(pth, (err) => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "deletion successful" });
 };

@@ -17,6 +17,7 @@ exports.getUsers = async (req, res, next) => {
 exports.signUp = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log(errors);
     return next(new httpError("Something wrong in the input field", 422));
   }
   const { name, email, password } = req.body;
@@ -38,7 +39,7 @@ exports.signUp = async (req, res, next) => {
     email,
     password,
     places: [],
-    image: "https://static.toiimg.com/photo/83890830/83890830.jpg?v=3",
+    image: req.file.path,
   });
 
   try {
