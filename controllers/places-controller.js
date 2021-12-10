@@ -15,9 +15,9 @@ exports.getPlaceById = async (req, res, next) => {
     return next(new httpError("Something went wrong!", 500));
   }
 
-  if (!sendData) {
-    return next(new httpError("Cannot find place id.", 404));
-  }
+  // if (!sendData) {
+  //   return next(new httpError("Cannot find place id.", 404));
+  // }
 
   res.json({ place: sendData.toObject({ getters: true }) });
 };
@@ -32,9 +32,9 @@ exports.getPlacesByUser = async (req, res, next) => {
     return next(new httpError("Something went wrong!", 500));
   }
 
-  if (!sendData || sendData.length === 0) {
-    return next(new httpError("Cannot find place user id.", 404));
-  }
+  // if (!sendData || sendData.length === 0) {
+  //   return next(new httpError("Cannot find place user id.", 404));
+  // }
 
   res.json({ place: sendData.map((p) => p.toObject({ getters: true })) });
 };
@@ -109,6 +109,12 @@ exports.updatePlaceById = async (req, res, next) => {
   } catch (err) {
     return next(new httpError("Something went wrong!", 500));
   }
+
+  if (place.creator.toString() !== req.userData.userId) {
+    return next(
+      new httpError("You are not authorized to edit this place info.", 401)
+    );
+  }
   place.description = incData.description;
   place.title = incData.title;
 
@@ -136,6 +142,12 @@ exports.deletePlaceById = async (req, res, next) => {
 
   if (!place) {
     return next(new httpError("Could not find the place !", 404));
+  }
+
+  if (place.creator.id !== req.userData.userId) {
+    return next(
+      new httpError("You are not authorized to delete this place info.", 401)
+    );
   }
 
   const pth = place.image;

@@ -1,5 +1,7 @@
 const httpError = require("./../models/http-error");
 const User = require("./../models/user");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 
 exports.getUsers = async (req, res, next) => {
@@ -34,10 +36,17 @@ exports.signUp = async (req, res, next) => {
     );
   }
 
+  let hashedPassword;
+  try {
+    hashedPassword = await bcrypt.hash(password, 12);
+  } catch (err) {
+    return next(new httpError("Cannot create user.", 500));
+  }
+
   const newUser = new User({
     name,
     email,
-    password,
+    password: hashedPassword,
     places: [],
     image: req.file.path,
   });
@@ -48,7 +57,20 @@ exports.signUp = async (req, res, next) => {
     return next(new httpError("Something went wrong !", 500));
   }
 
-  res.status(201).json({ user: newUser.toObject({ getters: true }) });
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      process.env.PRIVATE_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch (err) {
+    return next(new httpError("Something went wrong !.Sign up failed!", 500));
+  }
+
+  res
+    .status(201)
+    .json({ userId: newUser.id, email: newUser.email, token: token });
 };
 
 exports.logIn = async (req, res, next) => {
@@ -61,11 +83,33 @@ exports.logIn = async (req, res, next) => {
     return next(new httpError("Loggin in failed! Try again.", 500));
   }
 
-  if (!currUser || currUser.password !== password) {
-    return next(new httpError("Invalid credentials. Could not log in."));
+  if (!currUser) {
+    return next(new httpError("Invalid credentials. Could not log in.", 403));
   }
-  res.json({
-    message: "Logged In",
-    user: currUser.toObject({ getters: true }),
-  });
+
+  let isValid;
+  try {
+    isValid = await bcrypt.compare(password, currUser.password);
+  } catch (err) {
+    return next(new httpError("Loggin in failed! Try again.", 500));
+  }
+
+  if (!isValid) {
+    return next(new httpError("Invalid credentials. Could not log in.", 403));
+  }
+
+  let token;
+  try {
+    token = jwt.sign(
+      { userId: currUser.id, email: currUser.email },
+      process.env.PRIVATE_KEY,
+      { expiresIn: "1h" }
+    );
+  } catch (err) {
+    return next(new httpError("Something went wrong. Log in failed!", 500));
+  }
+
+  res
+    .status(201)
+    .json({ userId: currUser.id, email: currUser.email, token: token });
 };
