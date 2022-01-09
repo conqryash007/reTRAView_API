@@ -70,7 +70,7 @@ exports.signUp = async (req, res, next) => {
 
   res
     .status(201)
-    .json({ userId: newUser.id, email: newUser.email, token: token });
+    .send({ userId: newUser.id, email: newUser.email, token: token });
 };
 
 exports.logIn = async (req, res, next) => {
